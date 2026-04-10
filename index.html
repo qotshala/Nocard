@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SmartWallet CZ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .card-tap { transition: transform 0.1s ease; }
+        .card-tap:active { transform: scale(0.94); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="pb-28">
+
+    <div class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 px-6 py-4">
+        <div class="max-w-xl mx-auto flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-900 tracking-tighter text-gray-900">MY<span class="text-blue-600">CARDS</span></h1>
+                <div class="flex gap-2">
+                    <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded">CZECH REPUBLIC</span>
+                </div>
+            </div>
+            <input type="text" id="searchInput" onkeyup="filterCards()" placeholder="Search stores..." 
+                   class="w-full p-3.5 bg-gray-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-md font-medium">
+        </div>
+    </div>
+
+    <main id="home-section" class="max-w-xl mx-auto p-4 grid grid-cols-2 gap-3">
+        </main>
+
+    <section id="admin-section" class="hidden max-w-xl mx-auto p-6 animate-pulse-in">
+        <div class="bg-white rounded-[2rem] p-6 shadow-xl border border-gray-100">
+            <h2 class="text-xl font-bold mb-6">Add New Loyalty Card</h2>
+            <div class="space-y-4">
+                <input type="text" id="shop-name" placeholder="Shop Name (e.g. Albert)" class="w-full p-4 rounded-xl bg-gray-50 border-none outline-none">
+                <input type="text" id="barcode-url" placeholder="Barcode Image URL" class="w-full p-4 rounded-xl bg-gray-50 border-none outline-none">
+                <div class="flex items-center gap-4 p-2 bg-gray-50 rounded-xl">
+                    <label class="text-sm font-bold text-gray-500 ml-2">Brand Color:</label>
+                    <input type="color" id="shop-color" value="#2563eb" class="h-10 w-20 bg-transparent cursor-pointer">
+                </div>
+                <button onclick="addCard()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200">Add to Wallet</button>
+            </div>
+
+            <div id="admin-list" class="mt-8 space-y-2 border-t pt-6">
+                </div>
+        </div>
+    </section>
+
+    <div id="scan-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div id="modal-header" class="p-6 text-white text-center font-bold text-xl uppercase tracking-widest"></div>
+            <div class="p-8 flex flex-col items-center">
+                <img id="modal-img" src="" class="w-full h-auto mb-6">
+                <p class="text-gray-400 text-sm font-bold mb-6">SCAN AT CHECKOUT</p>
+                <button onclick="closeModal()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold">CLOSE</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-20 px-8 z-40">
+        <button onclick="showSection('home')" id="nav-home" class="flex flex-col items-center text-blue-600">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+            <span class="text-[10px] font-bold mt-1">Wallet</span>
+        </button>
+        <button onclick="showSection('admin')" id="nav-admin" class="flex flex-col items-center text-gray-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            <span class="text-[10px] font-bold mt-1">Settings</span>
+        </button>
+    </nav>
+
+    <script>
+        const initialCards = [
+            { id: 1, name: 'Tesco', color: '#00539f', url: '#' },
+            { id: 2, name: 'Lidl', color: '#0050aa', url: '#' },
+            { id: 3, name: 'Albert', color: '#7ab800', url: '#' },
+            { id: 4, name: 'Billa', color: '#ffec00', url: '#' },
+            { id: 5, name: 'Penny', color: '#d71920', url: '#' },
+            { id: 6, name: 'Kaufland', color: '#e30613', url: '#' },
+            { id: 7, name: 'dm', color: '#005596', url: '#' },
+            { id: 8, name: 'Rossmann', color: '#cc0000', url: '#' },
+            { id: 9, name: 'Dr.Max', color: '#82bc00', url: '#' },
+            { id: 10, name: 'Globus', color: '#ff6600', url: '#' }
+        ];
+
+        let cards = JSON.parse(localStorage.getItem('cz_wallet_v3')) || initialCards;
+
+        function render() {
+            const grid = document.getElementById('home-section');
+            const adminList = document.getElementById('admin-list');
+            grid.innerHTML = '';
+            adminList.innerHTML = '';
+
+            cards.forEach(card => {
+                // Card for main grid
+                grid.innerHTML += `
+                    <div onclick="openModal('${card.name}', '${card.url}', '${card.color}')" 
+                         class="card-tap relative h-32 rounded-3xl shadow-sm flex flex-col items-center justify-center overflow-hidden border border-white/20"
+                         style="background-color: ${card.color}">
+                        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 to-transparent"></div>
+                        <span class="relative text-white font-900 text-lg uppercase tracking-tighter">${card.name}</span>
+                        <div class="relative mt-2 px-3 py-1 bg-black/10 rounded-full text-[9px] text-white/80 font-bold">READY TO SCAN</div>
+                    </div>
+                `;
+
+                // Admin list item
+                adminList.innerHTML += `
+                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background:${card.color}"></div>
+                            <span class="font-bold text-gray-700">${card.name}</span>
+                        </div>
+                        <button onclick="deleteCard(${card.id})" class="text-red-500 font-bold text-xs uppercase">Remove</button>
+                    </div>
+                `;
+            });
+            localStorage.setItem('cz_wallet_v3', JSON.stringify(cards));
+        }
+
+        function filterCards() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let items = document.getElementsByClassName('card-tap');
+            for (let i = 0; i < items.length; i++) {
+                let name = items[i].innerText.toLowerCase();
+                items[i].style.display = name.includes(input) ? "flex" : "none";
+            }
+        }
+
+        function showSection(section) {
+            document.getElementById('home-section').classList.toggle('hidden', section !== 'home');
+            document.getElementById('admin-section').classList.toggle('hidden', section !== 'admin');
+            document.getElementById('nav-home').className = section === 'home' ? 'flex flex-col items-center text-blue-600' : 'flex flex-col items-center text-gray-400';
+            document.getElementById('nav-admin').className = section === 'admin' ? 'flex flex-col items-center text-blue-600' : 'flex flex-col items-center text-gray-400';
+            if(section === 'home') render();
+        }
+
+        function addCard() {
+            const name = document.getElementById('shop-name').value;
+            const url = document.getElementById('barcode-url').value;
+            const color = document.getElementById('shop-color').value;
+            if (name && url) {
+                cards.unshift({ id: Date.now(), name, url, color });
+                render();
+                showSection('home');
+                document.getElementById('shop-name').value = '';
+                document.getElementById('barcode-url').value = '';
+            }
+        }
+
+        function deleteCard(id) {
+            cards = cards.filter(c => c.id !== id);
+            render();
+        }
+
+        function openModal(name, url, color) {
+            const header = document.getElementById('modal-header');
+            header.innerText = name;
+            header.style.backgroundColor = color;
+            document.getElementById('modal-img').src = (url === '#') ? 'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg' : url;
+            document.getElementById('scan-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('scan-modal').classList.add('hidden');
+        }
+
+        render();
+    </script>
+</body>
+</html>
