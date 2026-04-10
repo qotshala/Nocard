@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SmartWallet CZ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:active { transform: scale(0.95); }
+        .nav-active { color: #2563eb; transform: translateY(-5px); }
+        .category-pill { transition: all 0.2s; }
+        .category-pill.active { background: #2563eb; color: white; }
+    </style>
+</head>
+<body class="pb-24">
+
+    <header class="p-6 max-w-2xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <p class="text-xs font-bold text-blue-600 uppercase tracking-widest">My Collection</p>
+                <h1 class="text-3xl font-800 text-slate-900">SmartWallet</h1>
+            </div>
+            <div class="h-12 w-12 bg-white rounded-2xl shadow-sm flex items-center justify-center border border-white">
+                <span class="text-xl">🇨🇿</span>
+            </div>
+        </div>
+
+        <input type="text" id="searchInput" onkeyup="filterCards()" 
+               placeholder="Search store..." 
+               class="w-full p-4 rounded-2xl glass-card border-none outline-none shadow-sm focus:ring-2 focus:ring-blue-500">
+        
+        <div class="flex gap-2 mt-4 overflow-x-auto pb-2 no-scrollbar">
+            <button onclick="filterCategory('all')" class="category-pill active px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm whitespace-nowrap">All</button>
+            <button onclick="filterCategory('Food')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm whitespace-nowrap">Groceries</button>
+            <button onclick="filterCategory('Fashion')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm whitespace-nowrap">Fashion</button>
+            <button onclick="filterCategory('Health')" class="category-pill px-4 py-2 rounded-full text-sm font-semibold bg-white shadow-sm whitespace-nowrap">Health</button>
+        </div>
+    </header>
+
+    <main id="home-section" class="max-w-2xl mx-auto px-6 grid grid-cols-2 gap-4">
+        </main>
+
+    <section id="admin-section" class="hidden max-w-2xl mx-auto px-6 pt-4 animate-slide-up">
+        <div class="bg-slate-900 text-white p-8 rounded-[2rem] shadow-2xl">
+            <h2 class="text-2xl font-bold mb-6">Add New Card</h2>
+            <div class="space-y-4">
+                <input type="text" id="shop-name" placeholder="Store Name" class="w-full p-4 rounded-xl bg-slate-800 border-none outline-none">
+                <input type="text" id="barcode-url" placeholder="Direct Image URL" class="w-full p-4 rounded-xl bg-slate-800 border-none outline-none">
+                <select id="shop-cat" class="w-full p-4 rounded-xl bg-slate-800 border-none outline-none">
+                    <option value="Food">Groceries</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Health">Health/Pharmacy</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button onclick="addCard()" class="w-full bg-blue-600 py-4 rounded-xl font-bold hover:bg-blue-500 transition">Save to Wallet</button>
+            </div>
+            
+            <div id="admin-list" class="mt-8 space-y-3 max-h-64 overflow-y-auto">
+                </div>
+        </div>
+    </section>
+
+    <div id="scan-modal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[100] hidden flex flex-col items-center justify-center p-8">
+        <div class="bg-white p-6 rounded-[2.5rem] w-full max-w-sm flex flex-col items-center shadow-2xl">
+            <h2 id="modal-title" class="text-2xl font-black text-slate-900 mb-8 uppercase"></h2>
+            <img id="modal-img" src="" class="w-full h-auto mb-8 rounded-lg">
+            <button onclick="closeModal()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg">Close</button>
+        </div>
+        <p class="text-slate-400 mt-6 text-sm">Hold phone near the scanner</p>
+    </div>
+
+    <nav class="fixed bottom-6 left-6 right-6 h-20 bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/50 flex items-center justify-around px-4 z-40 max-w-2xl mx-auto">
+        <button onclick="showSection('home')" id="nav-home" class="flex flex-col items-center nav-active">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            <span class="text-[10px] font-bold mt-1">Wallet</span>
+        </button>
+        <button onclick="showSection('admin')" id="nav-admin" class="flex flex-col items-center text-slate-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            <span class="text-[10px] font-bold mt-1">Manage</span>
+        </button>
+    </nav>
+
+    <script>
+        const defaultStores = [
+            { id: 1, name: 'Tesco', url: '#', cat: 'Food' },
+            { id: 2, name: 'Lidl', url: '#', cat: 'Food' },
+            { id: 3, name: 'Albert', url: '#', cat: 'Food' },
+            { id: 4, name: 'dm', url: '#', cat: 'Health' },
+            { id: 5, name: 'H&M', url: '#', cat: 'Fashion' }
+        ];
+
+        let cards = JSON.parse(localStorage.getItem('smart_wallet_data')) || defaultStores;
+        let currentCategory = 'all';
+
+        function render() {
+            const grid = document.getElementById('home-section');
+            const adminList = document.getElementById('admin-list');
+            grid.innerHTML = '';
+            adminList.innerHTML = '';
+
+            const filtered = currentCategory === 'all' ? cards : cards.filter(c => c.cat === currentCategory);
+
+            filtered.forEach(card => {
+                grid.innerHTML += `
+                    <div onclick="openModal('${card.name}', '${card.url}')" class="glass-card p-6 rounded-[2rem] flex flex-col items-center justify-center text-center shadow-sm">
+                        <div class="w-12 h-12 bg-blue-600 rounded-full mb-3 flex items-center justify-center text-white font-bold text-xl">
+                            ${card.name.charAt(0)}
+                        </div>
+                        <h3 class="font-bold text-slate-800">${card.name}</h3>
+                        <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-widest">${card.cat}</p>
+                    </div>
+                `;
+
+                adminList.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-800 p-4 rounded-xl">
+                        <span class="font-semibold text-sm">${card.name}</span>
+                        <button onclick="deleteCard(${card.id})" class="text-red-400 text-xs font-bold">Remove</button>
+                    </div>
+                `;
+            });
+            localStorage.setItem('smart_wallet_data', JSON.stringify(cards));
+        }
+
+        function showSection(section) {
+            document.getElementById('home-section').classList.toggle('hidden', section !== 'home');
+            document.getElementById('admin-section').classList.toggle('hidden', section !== 'admin');
+            
+            document.getElementById('nav-home').classList.toggle('nav-active', section === 'home');
+            document.getElementById('nav-admin').classList.toggle('nav-active', section === 'admin');
+            
+            // Re-render when switching back to home
+            if(section === 'home') render();
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-pill').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText.toLowerCase().includes(cat.toLowerCase()) || (cat === 'all' && btn.innerText === 'All'));
+            });
+            render();
+        }
+
+        function filterCards() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let items = document.getElementsByClassName('glass-card');
+            for (let i = 0; i < items.length; i++) {
+                let name = items[i].querySelector('h3').innerText.toLowerCase();
+                items[i].style.display = name.includes(input) ? "flex" : "none";
+            }
+        }
+
+        function addCard() {
+            const name = document.getElementById('shop-name').value;
+            const url = document.getElementById('barcode-url').value;
+            const cat = document.getElementById('shop-cat').value;
+            if (name && url) {
+                cards.unshift({ id: Date.now(), name, url, cat });
+                render();
+                showSection('home');
+                document.getElementById('shop-name').value = '';
+                document.getElementById('barcode-url').value = '';
+            }
+        }
+
+        function deleteCard(id) {
+            cards = cards.filter(c => c.id !== id);
+            render();
+        }
+
+        function openModal(name, url) {
+            document.getElementById('modal-title').innerText = name;
+            document.getElementById('modal-img').src = (url === '#') ? 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ExampleOnly' : url;
+            document.getElementById('scan-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('scan-modal').classList.add('hidden');
+        }
+
+        render();
+    </script>
+</body>
+</html>
