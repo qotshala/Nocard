@@ -3,76 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SmartWallet CZ</title>
+    <title>Czech Loyalty Wallet</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .card-tap { transition: transform 0.1s ease; }
-        .card-tap:active { transform: scale(0.94); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9fafb; }
+        .store-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .store-card:active { transform: scale(0.95); opacity: 0.9; }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-top: 1px solid rgba(0,0,0,0.05); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="pb-28">
+<body class="pb-24">
 
-    <div class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 px-6 py-4">
-        <div class="max-w-xl mx-auto flex flex-col gap-4">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-900 tracking-tighter text-gray-900">MY<span class="text-blue-600">CARDS</span></h1>
-                <div class="flex gap-2">
-                    <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded">CZECH REPUBLIC</span>
-                </div>
-            </div>
-            <input type="text" id="searchInput" onkeyup="filterCards()" placeholder="Search stores..." 
-                   class="w-full p-3.5 bg-gray-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-md font-medium">
+    <header class="p-6 max-w-xl mx-auto flex justify-between items-center">
+        <div>
+            <h1 id="page-title" class="text-2xl font-800 text-gray-900 tracking-tight text-blue-600">WALLET</h1>
+            <p id="page-desc" class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Czech Republic Edition</p>
         </div>
+        <div class="h-10 w-10 bg-white shadow-sm border border-gray-100 rounded-xl flex items-center justify-center">
+            <span class="text-lg">🇨🇿</span>
+        </div>
+    </header>
+
+    <div id="search-container" class="px-6 mb-6 max-w-xl mx-auto">
+        <input type="text" id="searchInput" onkeyup="filterCards()" placeholder="Search store..." 
+               class="w-full p-4 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium">
     </div>
 
-    <main id="home-section" class="max-w-xl mx-auto p-4 grid grid-cols-2 gap-3">
+    <main id="home-section" class="max-w-xl mx-auto px-6 grid grid-cols-2 gap-4">
         </main>
 
-    <section id="admin-section" class="hidden max-w-xl mx-auto p-6 animate-pulse-in">
-        <div class="bg-white rounded-[2rem] p-6 shadow-xl border border-gray-100">
-            <h2 class="text-xl font-bold mb-6">Add New Loyalty Card</h2>
-            <div class="space-y-4">
-                <input type="text" id="shop-name" placeholder="Shop Name (e.g. Albert)" class="w-full p-4 rounded-xl bg-gray-50 border-none outline-none">
-                <input type="text" id="barcode-url" placeholder="Barcode Image URL" class="w-full p-4 rounded-xl bg-gray-50 border-none outline-none">
-                <div class="flex items-center gap-4 p-2 bg-gray-50 rounded-xl">
-                    <label class="text-sm font-bold text-gray-500 ml-2">Brand Color:</label>
-                    <input type="color" id="shop-color" value="#2563eb" class="h-10 w-20 bg-transparent cursor-pointer">
+    <section id="dashboard-section" class="hidden max-w-xl mx-auto px-6">
+        <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm mb-8">
+            <h3 class="font-800 text-lg mb-4">Add New Card</h3>
+            <div class="space-y-3">
+                <input type="text" id="shop-name" placeholder="Store Name (e.g. Tesco)" class="w-full p-4 bg-gray-50 rounded-xl border-none outline-none">
+                <input type="text" id="barcode-url" placeholder="Barcode/QR Image Link" class="w-full p-4 bg-gray-50 rounded-xl border-none outline-none">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <span class="text-sm font-bold text-gray-400 uppercase ml-2">Brand Color</span>
+                    <input type="color" id="shop-color" value="#2563eb" class="h-10 w-16 bg-transparent cursor-pointer">
                 </div>
-                <button onclick="addCard()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-200">Add to Wallet</button>
+                <button onclick="addCard()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-blue-100 mt-2">Add to Wallet</button>
             </div>
-
-            <div id="admin-list" class="mt-8 space-y-2 border-t pt-6">
-                </div>
         </div>
+
+        <h3 class="font-800 text-gray-400 text-xs uppercase tracking-widest mb-4 ml-2">Active Cards Management</h3>
+        <div id="admin-list" class="space-y-2">
+            </div>
     </section>
 
-    <div id="scan-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl">
-            <div id="modal-header" class="p-6 text-white text-center font-bold text-xl uppercase tracking-widest"></div>
-            <div class="p-8 flex flex-col items-center">
-                <img id="modal-img" src="" class="w-full h-auto mb-6">
-                <p class="text-gray-400 text-sm font-bold mb-6">SCAN AT CHECKOUT</p>
-                <button onclick="closeModal()" class="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold">CLOSE</button>
+    <div id="scan-modal" class="fixed inset-0 bg-black/90 z-[100] hidden flex flex-col items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 flex flex-col items-center">
+            <h2 id="modal-title" class="text-2xl font-800 mb-8 text-gray-900 uppercase"></h2>
+            <div class="w-full p-4 bg-white border-2 border-dashed border-gray-100 rounded-2xl mb-8">
+                <img id="modal-img" src="" class="w-full h-auto">
             </div>
+            <button onclick="closeModal()" class="w-full bg-black text-white py-4 rounded-2xl font-bold">CLOSE</button>
         </div>
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-20 px-8 z-40">
-        <button onclick="showSection('home')" id="nav-home" class="flex flex-col items-center text-blue-600">
+    <nav class="fixed bottom-6 left-6 right-6 h-20 glass-nav rounded-[2.5rem] shadow-xl flex items-center justify-around px-8 z-40 max-w-xl mx-auto border border-white/50">
+        <button onclick="showSection('home')" id="nav-home" class="flex flex-col items-center text-blue-600 transition-all">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
             <span class="text-[10px] font-bold mt-1">Wallet</span>
         </button>
-        <button onclick="showSection('admin')" id="nav-admin" class="flex flex-col items-center text-gray-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-            <span class="text-[10px] font-bold mt-1">Settings</span>
+        <button onclick="showSection('dashboard')" id="nav-dash" class="flex flex-col items-center text-gray-300 transition-all">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span class="text-[10px] font-bold mt-1">Dashboard</span>
         </button>
     </nav>
 
     <script>
-        const initialCards = [
+        // List of shops with their actual branding colors
+        const defaultList = [
             { id: 1, name: 'Tesco', color: '#00539f', url: '#' },
             { id: 2, name: 'Lidl', color: '#0050aa', url: '#' },
             { id: 3, name: 'Albert', color: '#7ab800', url: '#' },
@@ -80,12 +84,10 @@
             { id: 5, name: 'Penny', color: '#d71920', url: '#' },
             { id: 6, name: 'Kaufland', color: '#e30613', url: '#' },
             { id: 7, name: 'dm', color: '#005596', url: '#' },
-            { id: 8, name: 'Rossmann', color: '#cc0000', url: '#' },
-            { id: 9, name: 'Dr.Max', color: '#82bc00', url: '#' },
-            { id: 10, name: 'Globus', color: '#ff6600', url: '#' }
+            { id: 8, name: 'Rossmann', color: '#cc0000', url: '#' }
         ];
 
-        let cards = JSON.parse(localStorage.getItem('cz_wallet_v3')) || initialCards;
+        let cards = JSON.parse(localStorage.getItem('cz_loyalty_data')) || defaultList;
 
         function render() {
             const grid = document.getElementById('home-section');
@@ -94,46 +96,52 @@
             adminList.innerHTML = '';
 
             cards.forEach(card => {
-                // Card for main grid
+                // Home Card
                 grid.innerHTML += `
-                    <div onclick="openModal('${card.name}', '${card.url}', '${card.color}')" 
-                         class="card-tap relative h-32 rounded-3xl shadow-sm flex flex-col items-center justify-center overflow-hidden border border-white/20"
-                         style="background-color: ${card.color}">
-                        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/20 to-transparent"></div>
-                        <span class="relative text-white font-900 text-lg uppercase tracking-tighter">${card.name}</span>
-                        <div class="relative mt-2 px-3 py-1 bg-black/10 rounded-full text-[9px] text-white/80 font-bold">READY TO SCAN</div>
+                    <div onclick="openModal('${card.name}', '${card.url}')" class="store-card h-36 rounded-[2rem] p-5 flex flex-col justify-between shadow-sm border border-white" style="background-color: ${card.color}">
+                        <span class="text-white font-800 text-lg leading-tight uppercase tracking-tighter">${card.name}</span>
+                        <div class="bg-white/20 self-start px-3 py-1 rounded-full">
+                            <span class="text-white text-[9px] font-bold uppercase tracking-widest">Tap to Scan</span>
+                        </div>
                     </div>
                 `;
 
-                // Admin list item
+                // Dashboard Item
                 adminList.innerHTML += `
-                    <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100">
                         <div class="flex items-center gap-3">
-                            <div class="w-4 h-4 rounded-full" style="background:${card.color}"></div>
+                            <div class="w-3 h-3 rounded-full" style="background:${card.color}"></div>
                             <span class="font-bold text-gray-700">${card.name}</span>
                         </div>
-                        <button onclick="deleteCard(${card.id})" class="text-red-500 font-bold text-xs uppercase">Remove</button>
+                        <button onclick="deleteCard(${card.id})" class="text-red-500 font-bold text-[10px] uppercase tracking-widest bg-red-50 px-3 py-1 rounded-lg">Remove</button>
                     </div>
                 `;
             });
-            localStorage.setItem('cz_wallet_v3', JSON.stringify(cards));
+            localStorage.setItem('cz_loyalty_data', JSON.stringify(cards));
+        }
+
+        function showSection(section) {
+            const isHome = section === 'home';
+            document.getElementById('home-section').classList.toggle('hidden', !isHome);
+            document.getElementById('search-container').classList.toggle('hidden', !isHome);
+            document.getElementById('dashboard-section').classList.toggle('hidden', isHome);
+            
+            // UI Updates
+            document.getElementById('page-title').innerText = isHome ? "WALLET" : "DASHBOARD";
+            document.getElementById('page-desc').innerText = isHome ? "Czech Republic Edition" : "Manage Your Cards";
+            document.getElementById('nav-home').className = isHome ? 'flex flex-col items-center text-blue-600' : 'flex flex-col items-center text-gray-300';
+            document.getElementById('nav-dash').className = !isHome ? 'flex flex-col items-center text-blue-600' : 'flex flex-col items-center text-gray-300';
+            
+            if(isHome) render();
         }
 
         function filterCards() {
             let input = document.getElementById('searchInput').value.toLowerCase();
-            let items = document.getElementsByClassName('card-tap');
+            let items = document.getElementsByClassName('store-card');
             for (let i = 0; i < items.length; i++) {
                 let name = items[i].innerText.toLowerCase();
                 items[i].style.display = name.includes(input) ? "flex" : "none";
             }
-        }
-
-        function showSection(section) {
-            document.getElementById('home-section').classList.toggle('hidden', section !== 'home');
-            document.getElementById('admin-section').classList.toggle('hidden', section !== 'admin');
-            document.getElementById('nav-home').className = section === 'home' ? 'flex flex-col items-center text-blue-600' : 'flex flex-col items-center text-gray-400';
-            document.getElementById('nav-admin').className = section === 'admin' ? 'flex flex-col items-center text-blue-600' : 'flex flex-col items-center text-gray-400';
-            if(section === 'home') render();
         }
 
         function addCard() {
@@ -146,19 +154,21 @@
                 showSection('home');
                 document.getElementById('shop-name').value = '';
                 document.getElementById('barcode-url').value = '';
+            } else {
+                alert("Please enter both Name and Barcode Link");
             }
         }
 
         function deleteCard(id) {
-            cards = cards.filter(c => c.id !== id);
-            render();
+            if(confirm("Are you sure?")) {
+                cards = cards.filter(c => c.id !== id);
+                render();
+            }
         }
 
-        function openModal(name, url, color) {
-            const header = document.getElementById('modal-header');
-            header.innerText = name;
-            header.style.backgroundColor = color;
-            document.getElementById('modal-img').src = (url === '#') ? 'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg' : url;
+        function openModal(name, url) {
+            document.getElementById('modal-title').innerText = name;
+            document.getElementById('modal-img').src = (url === '#' || url === '') ? 'https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg' : url;
             document.getElementById('scan-modal').classList.remove('hidden');
         }
 
